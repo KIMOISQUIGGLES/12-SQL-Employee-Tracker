@@ -25,7 +25,7 @@ function askQuestion() {
             name: 'question',
             type: 'list',
             message: 'What would you like to do?',
-            choices: ['View All Employees', 'View All Roles', 'View All Departments', 'Add Employee', 'Add Role', 'Add Department', 'Update Employee Role']
+            choices: ['View All Employees', 'View All Roles', 'View All Departments', 'Add Employee', 'Add Role', 'Add Department']
         }
     ]).then(answers => {
         // SWITCH CASE TO ALLOW USER TO PERFORM DIFFERENT TASKS
@@ -56,28 +56,25 @@ function askQuestion() {
                 addEmployee();
                 break;
 
-            case 'Update Employee Role':
-                updateRole();
-                break;
         }
     })
-}
+};
 
 function viewEmployees() {
     db.query('SELECT * FROM employee', function (err, result) {
         console.table(['id', 'first name', 'last name', 'role id', 'manager id'], result);
+        // RETURNS TO MAIN MENU
+        askQuestion();
     });
-    // RETURNS TO MAIN MENU
-    askQuestion();
-}
+};
 
 function viewDepts() {
     db.query('SELECT * FROM department', function (err, result) {
         console.table(['id', 'dept_name'], result);
+        // RETURNS TO MAIN MENU
+        askQuestion();
     });
-    // RETURNS TO MAIN MENU
-    askQuestion();
-}
+};
 
 function ViewRoles(){
     db.query('SELECT * FROM role', function (err, result) {
@@ -85,54 +82,55 @@ function ViewRoles(){
     });
     // RETURNS TO MAIN MENU
     askQuestion();
-}
+};
 
 function addDept() {
     inquirer.prompt([
         {
+            name: 'enterDept',
             type: 'input',
             message: 'please enter a department name',
-            name: 'enterDept',
         }
     ]).then(answers => {
         const deptName = answers.enterDept;
         db.connect(function(err){
             if (err) throw err;
             console.log('Connected');
-            var sql = `INSERT INTO department (dept_name) VALUES ('${deptName}')`;
+            var sql = `INSERT INTO department (name) VALUES ('${deptName}')`;
             db.query(sql, function (err, result) {
                 if (err) throw err;
             });
             db.query('SELECT * FROM department', function (err, result) {
                 console.table(['id, name'], result);
+                // RETURNS TO MAIN MENU
+                askQuestion();
             });
-        })
-    })
-    // RETURNS TO MAIN MENU
-    askQuestion();
-}
+        });
+    });
+};
 
 function addEmployee() {
     inquirer.prompt([
         {
+            name: 'enterFirst',
             type: 'input',
             message: 'please enter a first name',
-            name: 'enterFirst',
+            
         },
         {
+            name: 'enterLast',
             type: 'input',
             message: 'please enter a last name',
-            name: 'enterLast',
         },
         {
+            name: 'enterRoleId',
             type: 'input',
             message: 'please enter a role',
-            name: 'enterRoleId',
         },
         {
+            name: 'enterManagerId',
             type: 'input',
             message: 'please enter a manager ID.  If the employee is not a manager, please enter NULL',
-            name: 'enterManagerId',
         },
     ]).then(answers => {
         const employeeFirst = answers.enterFirst;
@@ -149,17 +147,50 @@ function addEmployee() {
             db.query('SELECT * FROM employee', function (err, result) {
                 console.table(['id, first_name, last_name, role_id, manager_id'], result);
             });
-        })
-    })
-    // RETURNS TO MAIN MENU
-    askQuestion();
-}
+        });
+        // RETURNS TO MAIN MENU
+        askQuestion();
+    });
+};
 
 function addRole() {
+    inquirer.prompt([
+        {
+            name: 'enterTitle',
+            type: 'input',
+            message: 'please enter a Title',
+            
+        },
+        {
+            name: 'enterSalary',
+            type: 'input',
+            message: 'please enter a salary',
+        },
+        {
+            name: 'enterDept',
+            type: 'input',
+            message: 'please enter a department',
+        },
+    ]).then(answers => {
+        const employeeTitle = answers.enterTitle;
+        const employeeSalary = answers.enterSalary;
+        const employeeDept = answers.enterDept;
+        db.connect(function(err){
+            if (err) throw err;
+            console.log('Connected');
+            var sql = `INSERT INTO role (title, salary, department_id) VALUES ('${employeeTitle}', '${employeeSalary}', '${employeeDept}')`;
+            db.query(sql, function (err, result) {
+                if (err) throw err;
+            });
+            db.query('SELECT * FROM role', function (err, result) {
+                console.table(['title, salary, department_id'], result);
+            });
+        });
+        // RETURNS TO MAIN MENU
+        askQuestion();
+    });
+};
 
-    // RETURNS TO MAIN MENU
-    askQuestion();
-}
 
 
 askQuestion();
